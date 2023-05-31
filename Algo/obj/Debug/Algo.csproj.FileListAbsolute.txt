@@ -1,0 +1,6 @@
+/Users/alexander/Documents/RiderProject/Algo/Algo/bin/Debug/Algo.exe
+/Users/alexander/Documents/RiderProject/Algo/Algo/bin/Debug/Algo.pdb
+/Users/alexander/Documents/RiderProject/Algo/Algo/obj/Debug/Algo.csproj.AssemblyReference.cache
+/Users/alexander/Documents/RiderProject/Algo/Algo/obj/Debug/Algo.csproj.CoreCompileInputs.cache
+/Users/alexander/Documents/RiderProject/Algo/Algo/obj/Debug/Algo.exe
+/Users/alexander/Documents/RiderProject/Algo/Algo/obj/Debug/Algo.pdb
