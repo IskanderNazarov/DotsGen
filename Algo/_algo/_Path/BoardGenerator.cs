@@ -22,7 +22,6 @@ public class BoardGenerator {
         edgeIndices.Shuffle();
         
 
-
         var innerIndices = GetInnerBlocksIndices(b, edgeIndices);
         innerIndices.Shuffle();
 
@@ -31,14 +30,12 @@ public class BoardGenerator {
         var innerBlocksCount = blocksCount - edgeBlocksCount;
 
         //first place edge indices...
-        PlaceBlocks(edgeBlocksCount, boardSize, edgeIndices, b);
+        PlaceBlocks(edgeBlocksCount, boardSize, edgeIndices, b, startVertex);
         
         //then place inner indices...
-        PlaceBlocks(innerBlocksCount, boardSize, innerIndices, b);
+        PlaceBlocks(innerBlocksCount, boardSize, innerIndices, b, startVertex);
         
         //todo save board to database
-        
-        
         
         
         return b;
@@ -46,7 +43,9 @@ public class BoardGenerator {
 
     //------------------------------
 
-    private void PlaceBlocks(int blocksCount, Pair boardSize, List<int> availableIndices, int[][] b) {
+    private void PlaceBlocks(int blocksCount, Pair boardSize, List<int> availableIndices, int[][] b, int startVertex) {
+        var startI = startVertex / boardSize.b;
+        var startJ = startVertex % boardSize.b;
         for (var k = 0; k < blocksCount; k++) {
             foreach (var edgeIndex in availableIndices) {
                 var i = edgeIndex / boardSize.b;
@@ -57,7 +56,7 @@ public class BoardGenerator {
                 }
 
                 b[i][j] = 0;
-                var isNotValid = !IsBoardValid(b);
+                var isNotValid = !IsBoardValid(b, startI, startJ);
                 if (isNotValid) {
                     //this is not valid place for the block, let's find another
                     b[i][j] = 1;
@@ -74,10 +73,11 @@ public class BoardGenerator {
 
     //------------------------------
 
-    public bool IsBoardValid(int[][] b) {
+    public bool IsBoardValid(int[][] b, int startI, int startJ) {
         return !HasIsolatedDots(b) &&
-               !HasMoreThan_1_SurroundedDot(b) && !HasIsolatedAreas(b) && !HasBlocksAreas(b) && !HasIsolatedAreaByStartVertex(b);
-               //&& !HasMany1x2Blocks(b);//only for small levels
+               !HasMoreThan_1_SurroundedDot(b) && !HasIsolatedAreas(b, 1) && !HasBlocksAreas(b) && !HasIsolatedAreaByStartVertex(b);
+        //&& !HasAtLeast_2_DeadLockArea(b, startI, startJ);
+        //&& !HasMany1x2Blocks(b);//only for small levels
     }
     
     //------------------------------
@@ -128,7 +128,7 @@ public class BoardGenerator {
         }
 
         board[startI][startJ] = 0;
-        var hasIsolatedArea = HasIsolatedAreas(board);
+        var hasIsolatedArea = HasIsolatedAreas(board, 1);
         board[startI][startJ] = 2;
 
         return hasIsolatedArea;
@@ -164,7 +164,7 @@ public class BoardGenerator {
 
     private bool[] visited;
 
-    public bool HasIsolatedAreas(int[][] b) {
+    public bool HasIsolatedAreas(int[][] b, int permittedAreasCount) {
         visited = new bool[b.Length * b[0].Length];
 
         var areasCounter = 0;
@@ -174,13 +174,38 @@ public class BoardGenerator {
                 if (b[i][j] != 0 && !visited[i * w + j]) {
                     var area = new List<int>();
                     StartBFS(b, i * w + j, area, new Queue<int>(), false);
+                    /*Console.WriteLine($"{i}, {j}");
+                    Utils.PrintList(area);*/
                     areasCounter++;
                 }
             }
         }
 
 
-        return areasCounter > 1;
+        return areasCounter > permittedAreasCount;
+    }
+    
+    public List<List<int>> GetAllIsolatedAreas(int[][] b) {
+        visited = new bool[b.Length * b[0].Length];
+
+        var allAreas = new List<List<int>>();
+
+        var areasCounter = 0;
+        var w = b[0].Length;
+        for (var i = 0; i < b.Length; i++) {
+            for (var j = 0; j < b[i].Length; j++) {
+                if (b[i][j] != 0 && !visited[i * w + j]) {
+                    var area = new List<int>();
+                    StartBFS(b, i * w + j, area, new Queue<int>(), false);
+                    
+                    allAreas.Add(area);
+                    areasCounter++;
+                }
+            }
+        }
+
+
+        return allAreas;
     }
 
     //------------------------------
@@ -245,6 +270,7 @@ public class BoardGenerator {
 
     //---------------
 
+    //If the board has large array of blocks
     public bool HasBlocksAreas(int[][] b) {
         visited = new bool[b.Length * b[0].Length];
 
@@ -310,4 +336,68 @@ public class BoardGenerator {
     }
 
     //---------------
+
+    /*
+     0 1 1 1 1 1
+     3 3 0 1 1 1
+     3 3 0 0 1 1
+     0 0 3 0 1 0
+     3 3 3 3 3 3
+     */
+    
+    //3-area is dead lock area
+
+    public bool HasAtLeast_2_DeadLockArea(int[][] b, int startI,  int startJ) {
+        var n = b.Length;
+        var m = b[0].Length;
+        var count = n * m;
+
+        //first convert start dot into general dot
+        b[startI][startJ] = 1;
+        
+        for (var k1 = 0; k1 < count; k1++) {
+            var i1 = k1 / m;
+            var j1 = k1 % m;
+            if(b[i1][j1] != 1)continue;
+            for (var k2 = k1 + 1; k2 < count; k2++) {
+                var i2 = k2 / m;
+                var j2 = k2 % m;
+                if(b[i2][j2] != 1)continue;
+                
+                //now lets convert [i1, j1] and [i2, j2] to a block (to 0)
+                b[i1][j1] = 0;
+                b[i2][j2] = 0;
+                var areas = GetAllIsolatedAreas(b);
+
+                /*b[i2][j2] = 0;
+                var hasIsolatedArea_2 = HasIsolatedAreas(b, 2);*/
+                b[i2][j2] = 1;
+                b[i1][j1] = 1;
+
+                var hasIsolatedArea_1 = false;
+                if (areas.Count >= 3) {
+                    hasIsolatedArea_1 = true;
+                    foreach (var area in areas) {
+                        hasIsolatedArea_1 &= area.Count > 4;
+                    }
+                }
+                
+                if (hasIsolatedArea_1/* && hasIsolatedArea_2*/) {
+                    b[startI][startJ] = 2;
+                    
+                    //Console.WriteLine($"({i1}, {j1}), ({i2}, {j2})");
+                    /*foreach (var area in areas) {
+                        Utils.PrintList(area);
+                    }*/
+                    // Utils.PrintBoard(b);
+                    // Console.WriteLine("============");
+                    return true;
+                }
+            }
+        }
+        
+        b[startI][startJ] = 2;
+        return false;
+
+    }
 }

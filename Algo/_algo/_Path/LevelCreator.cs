@@ -19,8 +19,13 @@ public class LevelCreator {
         List<int> blockz = null;
         Pair startVertex;
         var count = 0;
+        var timeForBoardGeneration = 0d;
         do {
+            var bf = DateTime.Now;
             var (b, startI, startJ, blocks) = GenerateValidBoard(boardSize, blocksCount);
+            var af = DateTime.Now;
+            timeForBoardGeneration += (af - bf).TotalSeconds;
+            
             blockz = blocks;
             startVertex = new Pair(startI, startJ);
             //var pathFinder = new HamiltonianPathListAdjWarnsdorf(b, startI, startJ);
@@ -34,7 +39,7 @@ public class LevelCreator {
 
         var after = DateTime.Now;
         var sec = (float)(after - before).TotalSeconds;
-        Console.WriteLine("Seconds: " + sec);
+        Console.WriteLine("Time for board generation: " + Math.Round(timeForBoardGeneration, 1));
 
 
 
