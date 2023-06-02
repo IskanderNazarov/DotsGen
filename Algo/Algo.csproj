@@ -55,11 +55,13 @@
         <Compile Include="_algo\_Path\IFindable.cs" />
         <Compile Include="_algo\_Path\Level.cs" />
         <Compile Include="_algo\_Path\LevelCreator.cs" />
+        <Compile Include="_algo\_Path\LevelCreator_Hard.cs" />
         <Compile Include="_algo\_Path\Pair.cs" />
         <Compile Include="_algo\_Path\PathFinderTester.cs" />
         <Compile Include="_algo\_Path\Start.cs" />
         <Compile Include="_algo\_Path\TestPathFinder.cs" />
         <Compile Include="_algo\_Path\Utils.cs" />
+        <Compile Include="_algo\_Path\_level_creators\ILevelCreator.cs" />
         <Compile Include="_algo\_Path\_test\Hamiltonian_BranchAndBounds.cs" />
     </ItemGroup>
     <ItemGroup>

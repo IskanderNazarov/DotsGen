@@ -9,10 +9,10 @@ public class Start {
         
         new ComplexityData {levelsCount = 0, complexity = 2, vertexCount = new Pair(40, 44), boardSizes = new []{(8, 7), (10, 6), (9, 7)}}, //56-60-63, 16, 12, 20, 23, 19 ...
         new ComplexityData {levelsCount = 0, complexity = 3, vertexCount = new Pair(52, 55), boardSizes = new []{(10, 7), (9, 8)}}, //70-72, blocks 13-15
-        new ComplexityData {levelsCount = 51, complexity = 4, vertexCount = new Pair(56, 63), boardSizes = new []{(8, 10), (10, 8), (9, 9), (11, 8), (10, 9), (9, 10)}}, //80-81-88-90-99, blocks 20-22
+        new ComplexityData {levelsCount = 30, complexity = 4, vertexCount = new Pair(56, 63), boardSizes = new []{(8, 10), (10, 8), (9, 9), (11, 8), (10, 9), (9, 10)}}, //80-81-88-90-99, blocks 20-22
         new ComplexityData {levelsCount = 0, complexity = 5, vertexCount = new Pair(64, 70), boardSizes = new []{(11, 9),(10, 10), (13, 8), (12, 9)}} //99-100-104-108, blocks 28-33
     };
-    private int levelNumber = 449;
+    private int levelNumber = 500;
     
     //U2 F2 R2 U' L2 D B R' B R' B R' D' L2 U'.
     //U' L2 F2 D' L' D U2 R U' R' U2 R2 U F' L' U R'.

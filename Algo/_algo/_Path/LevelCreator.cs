@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 public class LevelCreator {
 
-    public Level GenerateLevel(IFindable findable, Pair boardSize, int vertexCount, int levelNumber) {
+    public virtual Level GenerateLevel(IFindable findable, Pair boardSize, int vertexCount, int levelNumber) {
         var blocksCount = boardSize.a * boardSize.b - vertexCount;
         Console.WriteLine("+++++++++++++++++++++++++++++++++++++++");
         Console.WriteLine("Start time: " + DateTime.Now);
@@ -28,7 +27,6 @@ public class LevelCreator {
             
             blockz = blocks;
             startVertex = new Pair(startI, startJ);
-            //var pathFinder = new HamiltonianPathListAdjWarnsdorf(b, startI, startJ);
             
 
             findable.Initialize(b, startI, startJ);
@@ -46,7 +44,7 @@ public class LevelCreator {
         var level = new Level {
             path = path.ToArray(), //ConvertPairsToIndices(path, boardSize).ToArray(),
             boardSize = boardSize,
-            startNumber = startVertex.a * boardSize.b + startVertex.b,
+            startVertex = startVertex.a * boardSize.b + startVertex.b,
             blocksPositions = blockz.ToArray(),
             timeForGeneration = sec
         };
@@ -59,13 +57,14 @@ public class LevelCreator {
         return level;
     }
 
-    private (int[][], int i, int j, List<int> blocks) GenerateValidBoard(Pair boardSize, int blocksCount) {
+    protected virtual (int[][], int i, int j, List<int> blocks) GenerateValidBoard(Pair boardSize, int blocksCount) {
         (int[][] b, int startI, int startJ, List<int> blocks) t;
         int startV;
         bool isInDatabase;
         do {
-            t = GenerateRandomBoard(boardSize, blocksCount);
-            startV = t.startI * boardSize.b + t.startJ;
+            //startV = t.startI * boardSize.b + t.startJ;
+            startV = GetRandomStartVertex(0, boardSize.a * boardSize.b - 1);
+            t = GenerateRandomBoard(boardSize, blocksCount, startV);
             isInDatabase = BoardsDatabase.shared.HasBoard(t.blocks, startV);
 
             if (!isInDatabase) {
@@ -78,15 +77,11 @@ public class LevelCreator {
 
     //------------------------------------------------------------
 
-    private (int[][], int i, int j, List<int> blocks) GenerateRandomBoard(Pair boardSize, int blocksCount) {
+    protected virtual (int[][], int i, int j, List<int> blocks) GenerateRandomBoard(Pair boardSize, int blocksCount, int startVertex) {
         //boardSize.a - lines (height)
         //boardSize.b - columns (width)
-        var randList = new List<int>();
-        for (var i = 0; i < boardSize.a * boardSize.b; i++) randList.Add(i);
-        randList.Shuffle();
 
         //randomly get start position
-        var startVertex = new Random().Next(0, boardSize.a * boardSize.b);
         var start_i = startVertex / boardSize.b;
         var start_j = startVertex % boardSize.b;
 
@@ -109,6 +104,13 @@ public class LevelCreator {
     }
 
     //------------------------------------------------------------
+
+    /**
+     * Generate a number in the range of [valueStart, valueEnd] both inclusive
+     */
+    protected virtual int GetRandomStartVertex(int valueStart, int valueEnd) {
+        return new Random().Next(valueStart, valueEnd + 1);
+    }
 
 
     //------------------------------------------------------------

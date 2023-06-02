@@ -5,7 +5,7 @@ public class Level {
     public int levelNumber;
     public int complexity;
     public Pair boardSize;
-    public int startNumber;
+    public int startVertex;
     public int[] path;
     public int[] blocksPositions;
     public float timeForGeneration;
@@ -17,7 +17,7 @@ public class Level {
         sb.Append(' ');
         sb.Append(boardSize.b);
         sb.Append('\n');
-        sb.Append(startNumber);
+        sb.Append(startVertex);
         sb.Append('\n');
         
         foreach (var p in path) {
@@ -57,7 +57,7 @@ public class Level {
         var s = "";
         s += $"Level number: {levelNumber}\n" +
             $"BoardSize: {boardSize}\n" +
-             $"Start number: {startNumber}\n" +
+             $"Start number: {startVertex}\n" +
              $"Matrix: \n{CreateBoardString()}\n" +
              $"Path: {p}\n" +
             $"-----------------------------"
@@ -74,8 +74,8 @@ public class Level {
             }
         }
 
-        var startI = startNumber / boardSize.b;
-        var startJ = startNumber % boardSize.b;
+        var startI = startVertex / boardSize.b;
+        var startJ = startVertex % boardSize.b;
         b[startI][startJ] = 2;
         foreach (var pp in blocksPositions) {
             var i = pp / boardSize.b;
